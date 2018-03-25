@@ -68,16 +68,19 @@ public class IndoNumeroController {
     	
     	btnNuova.setDisable(true);
     	boxDiGioco.setDisable(false);
-    	txtCurrent.setText(String.format("%d", tentativi));
-    	txtMax.setText(String.format("%d", TMAX));
+    	txtCurrent.setText(String.format("%d", model.getTentativi()));
+    	txtMax.setText(String.format("%d", model.getTMAX()));
     	txtLog.clear();
+    	txtLog.setText(String.format("indovina numero da %d e %d\n", 1, model.getNMAX()));
     }
 
     @FXML
     void handleProva(ActionEvent event) {
-    	int num;
-    	String numS = txtTentativo.getText();
     	
+    	String numS = txtTentativo.getText();
+    	int num = Integer.parseInt(numS);
+    	
+
     	if(numS.isEmpty()) {
     		txtLog.appendText("Devi inserire un numero! \n");
     		txtTentativo.clear();
@@ -85,46 +88,42 @@ public class IndoNumeroController {
     	}
     		
     	try{
-    		num = Integer.parseInt(numS);
-    		if(num < 0 || num > 100) {
+    		if(!model.valoreValido(num)) { //la visibilta del metodo ValoreValido è stata tolta
         		txtLog.appendText("Numero non riconosciuto! Inserisci un numero compreso tra 0 e 100\n ");
         		txtTentativo.clear();
         		return;
-        		
-    		}else if(tentativi == TMAX) {
-        		txtLog.appendText("Hai perso! Il numero da indovinare era " + numSegreto + "\n");
-        		txtTentativo.clear();
-        		btnNuova.setDisable(false);
-        		boxDiGioco.setDisable(true);
-            	
-            	inGame = false;
-            	return;
-        		
-    		}else if(num < numSegreto) {
-            		txtLog.appendText("Il numero inserito ("+ num + ") è minore. Ritenta!\n");
-            		txtTentativo.clear();
-            		tentativi++;
-            		txtCurrent.setText(String.format("%d", tentativi));
-        			return;
-        			}
-    		else if(num == numSegreto) {
-            		txtLog.appendText("Numero indovinato. Hai vinto!\n");
-            		txtTentativo.clear();
-            		// dobbiamo disabilitare l'area di gioco (seconda hBox)
-            		//e cominciare una nuova partita.
-            		btnNuova.setDisable(false);
-                	boxDiGioco.setDisable(true);
-                	
-                	inGame = false;
-                	return;
-            		}
-            else if(num > numSegreto) {
+        		}
+    		
+    		int risultato = model.tentativo(num);//valore inserito
+        	txtCurrent.setText(String.format("%d", model.getTentativi()));
+
+    		
+    		if(risultato < 0) {
+    			txtLog.appendText("Il numero inserito ("+ num + ") è minore. Ritenta!\n");
+            	txtTentativo.clear();
+        		}
+    		else if( risultato == 0) {
+            	txtLog.appendText("Numero indovinato. Hai vinto!\n");
+            	txtTentativo.clear();
+            	// dobbiamo disabilitare l'area di gioco (seconda hBox)
+            	//e cominciare una nuova partita.
+            	btnNuova.setDisable(false);
+                boxDiGioco.setDisable(true);
+            	}
+            else if(risultato > 0) {
             		txtLog.appendText("Il numero inserito (" + num + ") è maggiore. Ritenta!\n");            		
             		txtTentativo.clear();
-            		tentativi++;
-            		txtCurrent.setText(String.format("%d", tentativi));
-            		return;
             		}
+    		
+    		
+    		
+    		if(!model.isInGame()) {
+    			if(risultato != model.getNumSegreto())
+    				txtLog.appendText("Hai perso! Il numero da indovinare era " + model.getNumSegreto() + "\n");
+    			txtTentativo.clear();
+            	btnNuova.setDisable(false);
+            	boxDiGioco.setDisable(true);	
+    		}
             
         	
     	}catch(NumberFormatException e) {
