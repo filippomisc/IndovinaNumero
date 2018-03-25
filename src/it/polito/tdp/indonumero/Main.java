@@ -11,10 +11,16 @@ public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 		try {
-			BorderPane root = (BorderPane)FXMLLoader.load(getClass().getResource("IndoNumero.fxml"));
-			Scene scene = new Scene(root,400,400);
+			FXMLLoader loader = new FXMLLoader(getClass().getResource("IndoNumero.fxml"));
+			
+			
+			BorderPane root = (BorderPane)loader.load();
+			Scene scene = new Scene(root);
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-			primaryStage.setScene(scene);
+			
+			Model model = new Model();
+			((IndoNumeroController)loader.getController()).setModel(model);
+			
 			primaryStage.show();
 		} catch(Exception e) {
 			e.printStackTrace();
